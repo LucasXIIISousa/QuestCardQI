@@ -27,7 +27,7 @@ class _IntroVideoScreenState extends State<IntroVideoScreen> {
             setState(() {
               _isVideoInitialized = true;
             });
-            _controller.setVolume(0.0);
+            _controller.setVolume(10.0);
             _controller.setLooping(false);
             _controller.play();
           });

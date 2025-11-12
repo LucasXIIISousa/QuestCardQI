@@ -52,7 +52,7 @@ class RewardScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
-                    image: const AssetImage('assets/images/ui/Card.png'),
+                    image: const AssetImage('assets/images/cards/Card.png'),
                     fit: BoxFit.cover,
                     opacity: 0.3,
                   ),

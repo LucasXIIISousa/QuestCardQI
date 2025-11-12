@@ -9,6 +9,10 @@ import '../widget/card_in_hand_widget.dart';
 import '../widget/quiz_dialog.dart';
 import 'reward_screen.dart';
 import 'lose_screen.dart';
+import 'map_screen.dart';
+
+// Instância global de Random para garantir aleatoriedade real
+final _random = Random();
 
 class BattleScreen extends StatelessWidget {
   const BattleScreen({super.key});
@@ -18,13 +22,13 @@ class BattleScreen extends StatelessWidget {
     CardModel card,
     GameController game,
   ) {
-    final random = Random();
     if (card.quizzes.isEmpty) {
       print("ERROR: Card ${card.name} has no quizzes!");
       return;
     }
+    // Usa a instância global de Random
     final QuizData selectedQuiz =
-        card.quizzes[random.nextInt(card.quizzes.length)];
+        card.quizzes[_random.nextInt(card.quizzes.length)];
 
     showDialog(
       context: context,
@@ -54,9 +58,20 @@ class BattleScreen extends StatelessWidget {
       if (!context.mounted) return;
 
       final currentGameState = context.read<GameController>().gameState;
+      final currentMonster = context.read<GameController>().currentMonster;
       final isCurrentRoute = ModalRoute.of(context)?.isCurrent ?? false;
 
       if (isCurrentRoute) {
+        // Se não há monstro, significa que o estado não foi restaurado corretamente
+        if (currentMonster == null) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const MapScreen()),
+            (route) => false,
+          );
+          return;
+        }
+        
         if (currentGameState == GameState.won) {
           game.gameState = GameState.playing;
           Navigator.pushReplacement(
@@ -85,6 +100,42 @@ class BattleScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
+      appBar: AppBar(
+        backgroundColor: Colors.black.withOpacity(0.5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          tooltip: 'Voltar ao Mapa',
+          onPressed: () {
+            // Confirma antes de sair
+            showDialog(
+              context: context,
+              builder: (dialogContext) => AlertDialog(
+                title: const Text('Desistir da Batalha?'),
+                content: const Text('Você perderá o progresso desta batalha.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancelar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      game.resetGame();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MapScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('Desistir', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
       body: Stack(
         children: [
           Positioned(

@@ -14,6 +14,21 @@ class CardInCollectionWidget extends StatelessWidget {
     required this.isOwned,
   });
 
+  Color _colorForSubject(String s) {
+    switch (s.toLowerCase()) {
+      case 'matemática':
+      case 'matematica':
+        return Colors.deepOrange;
+      case 'geografia':
+        return Colors.teal;
+      case 'física':
+      case 'fisica':
+        return Colors.indigo;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Widget base com o visual da carta
@@ -49,28 +64,46 @@ class CardInCollectionWidget extends StatelessWidget {
               ),
             ),
 
-            // 2. Overlay Gradiente
+            // 2. Overlay Gradiente (escurece o fundo para garantir legibilidade do texto)
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withAlpha((255 * 0.1).round()),
-                    Colors.black.withAlpha((255 * 0.6).round()),
+                    Colors.black.withAlpha((255 * 0.15).round()),
+                    Colors.black.withAlpha((255 * 0.65).round()),
                   ],
                   stops: const [0.0, 0.9],
                 ),
               ),
             ),
 
-            // 3. Conteúdo da Carta (Textos)
+            // 3. Faixa de assunto (pequena, ajuda a diferenciar)
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _colorForSubject(card.subject),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  card.subject,
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+            // 4. Conteúdo da Carta (Textos)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Nome no topo
                   Text(
                     card.name,
                     textAlign: TextAlign.center,
@@ -89,6 +122,8 @@ class CardInCollectionWidget extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+
+                  // Efeitos/descrições na parte inferior
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
@@ -116,7 +151,6 @@ class CardInCollectionWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        // Corrigido para "Acerto:" para evitar erros de fonte na Web
                         "Acerto: ${card.bonusEffectDescription}",
                         style: const TextStyle(
                           color: Colors.lightGreenAccent,
@@ -129,7 +163,6 @@ class CardInCollectionWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        // Corrigido para "Erro:"
                         "Erro: ${card.baseEffectDescription}",
                         style: const TextStyle(
                           color: Colors.redAccent,
@@ -150,63 +183,77 @@ class CardInCollectionWidget extends StatelessWidget {
       ),
     );
 
+    // Container externo adicionando borda se owned
+    Widget withBorder = Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: isOwned ? Border.all(color: Colors.yellowAccent, width: 3) : null,
+      ),
+      child: cardVisual,
+    );
+
     return Stack(
       clipBehavior: Clip.none, // Permite o ícone sair para fora
       children: [
-        // 1. O VISUAL DA CARTA (SEMPRE PRESENTE)
-        // Se não for "owned", aplicamos o filtro cinza.
-        if (!isOwned)
-          Positioned.fill(
-            child: ColorFiltered(
-              colorFilter: const ColorFilter.mode(
-                Colors.grey,
-                BlendMode.saturation,
-              ),
-              child: cardVisual,
-            ),
-          )
-        else
-          // Se for "owned", mostramos a carta normal.
-          cardVisual,
+        // 1. Conteúdo base (com borda se owned)
+        withBorder,
 
-        // 2. OVERLAY DE "NÃO ADQUIRIDA" (SÓ APARECE SE NÃO FOR "OWNED")
+        // 2. OVERLAY DE "NÃO ADQUIRIDA" (transparente — NÃO bloqueia os textos)
         if (!isOwned)
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                child: Container(
-                  // --- CORREÇÃO AQUI ---
-                  // Trocado de Colors.black.withOpacity(0.6)
-                  color: Colors.black.withAlpha(153),
-                  // --- FIM DA CORREÇÃO ---
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
+              child: Stack(
+                children: [
+                  // sem o BackdropFilter forte; apenas uma camada semitransparente
+                  Container(
+                    color: Colors.black.withAlpha(80), // leve transparência - mantém textos legíveis
+                  ),
+
+                  // Cadeado discreto no canto superior direito
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
                         Icons.lock_outline,
                         color: Colors.white70,
-                        size: 40,
+                        size: 20,
                       ),
-                      if (card.acquisitionHint != null) ...[
-                        const SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            card.acquisitionHint!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
+
+                  // Dica de aquisição na base (se houver) — pequena e não cobre os textos principais
+                  if (card.acquisitionHint != null)
+                    Positioned(
+                      left: 6,
+                      right: 6,
+                      bottom: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          card.acquisitionHint!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

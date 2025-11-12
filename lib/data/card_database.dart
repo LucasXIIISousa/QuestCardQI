@@ -23,6 +23,31 @@ final Map<String, CardModel> allCards = {
         options: ['14', '13', '15'],
         correctOptionIndex: 0,
       ),
+      QuizData(
+        question: 'Quanto é 12 + 18?',
+        options: ['28', '30', '32', '26'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 25 + 17?',
+        options: ['40', '42', '44', '38'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 33 + 29?',
+        options: ['60', '62', '64', '58'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 6 + 9?',
+        options: ['14', '15', '16', '17'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 11 + 14?',
+        options: ['23', '24', '25', '26'],
+        correctOptionIndex: 2,
+      ),
     ],
   ),
   'basic_capital': CardModel(
@@ -40,6 +65,31 @@ final Map<String, CardModel> allCards = {
         question: 'Qual a capital da França?',
         options: ['Londres', 'Berlim', 'Paris', 'Madri'],
         correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital do Brasil?',
+        options: ['São Paulo', 'Rio de Janeiro', 'Brasília', 'Salvador'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital da Itália?',
+        options: ['Roma', 'Milão', 'Veneza', 'Nápoles'],
+        correctOptionIndex: 0,
+      ),
+      QuizData(
+        question: 'Qual a capital da Espanha?',
+        options: ['Barcelona', 'Madri', 'Sevilha', 'Valência'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual a capital de Portugal?',
+        options: ['Porto', 'Coimbra', 'Lisboa', 'Braga'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital da Argentina?',
+        options: ['Buenos Aires', 'Córdoba', 'Rosário', 'Mendoza'],
+        correctOptionIndex: 0,
       ),
     ],
   ),
@@ -72,6 +122,31 @@ final Map<String, CardModel> allCards = {
         options: ['50', '65', '60'],
         correctOptionIndex: 2,
       ),
+      QuizData(
+        question: 'Quanto é 7 x 8?',
+        options: ['54', '56', '58', '60'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 9 x 6?',
+        options: ['52', '54', '56', '58'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 11 x 11?',
+        options: ['111', '121', '131', '141'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 15 x 4?',
+        options: ['55', '60', '65', '70'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 3 x 13?',
+        options: ['36', '39', '42', '45'],
+        correctOptionIndex: 1,
+      ),
     ],
   ),
   'math_div': CardModel(
@@ -101,6 +176,26 @@ final Map<String, CardModel> allCards = {
         options: ['8', '7', '6'],
         correctOptionIndex: 1,
       ),
+      QuizData(
+        question: 'Quanto é 144 / 12?',
+        options: ['11', '12', '13', '14'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 63 / 7?',
+        options: ['7', '8', '9', '10'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Quanto é 56 / 8?',
+        options: ['6', '7', '8', '9'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Quanto é 72 / 9?',
+        options: ['6', '7', '8', '9'],
+        correctOptionIndex: 2,
+      ),
     ],
   ),
 
@@ -127,6 +222,21 @@ final Map<String, CardModel> allCards = {
         options: ['Massa', 'Velocidade', 'Força'],
         correctOptionIndex: 2,
       ),
+      QuizData(
+        question: 'Qual a aceleração da gravidade na Terra (aprox)?',
+        options: ['8 m/s²', '9,8 m/s²', '10,5 m/s²', '12 m/s²'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Se massa = 10kg e aceleração = 5m/s², qual a força?',
+        options: ['50 N', '15 N', '2 N', '100 N'],
+        correctOptionIndex: 0,
+      ),
+      QuizData(
+        question: 'Qual lei descreve inércia?',
+        options: ['2ª Lei de Newton', '3ª Lei de Newton', '1ª Lei de Newton'],
+        correctOptionIndex: 2,
+      ),
     ],
   ),
   'tesla': CardModel(
@@ -146,6 +256,26 @@ final Map<String, CardModel> allCards = {
       QuizData(
         question: 'Qual corrente Tesla defendeu contra Edison?',
         options: ['Contínua (DC)', 'Alternada (AC)', 'Iônica'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Em que ano Nikola Tesla nasceu?',
+        options: ['1846', '1856', '1866', '1876'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual era a nacionalidade de Tesla?',
+        options: ['Americano', 'Sérvio', 'Russo', 'Alemão'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Tesla trabalhou brevemente para qual inventor?',
+        options: ['Graham Bell', 'Thomas Edison', 'Henry Ford'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual unidade física leva o nome de Tesla?',
+        options: ['Corrente elétrica', 'Campo magnético', 'Tensão', 'Potência'],
         correctOptionIndex: 1,
       ),
     ],
@@ -174,6 +304,36 @@ final Map<String, CardModel> allCards = {
         question: 'Qual a capital da Austrália?',
         options: ['Sydney', 'Canberra', 'Melbourne'],
         correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual a capital do Canadá?',
+        options: ['Toronto', 'Vancouver', 'Ottawa', 'Montreal'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital da Alemanha?',
+        options: ['Munique', 'Hamburgo', 'Berlim', 'Frankfurt'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital da Índia?',
+        options: ['Mumbai', 'Calcutá', 'Nova Délhi', 'Bangalore'],
+        correctOptionIndex: 2,
+      ),
+      QuizData(
+        question: 'Qual a capital do Egito?',
+        options: ['Alexandria', 'Cairo', 'Luxor', 'Gizé'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual a capital da Rússia?',
+        options: ['São Petersburgo', 'Moscou', 'Kiev', 'Volgograd'],
+        correctOptionIndex: 1,
+      ),
+      QuizData(
+        question: 'Qual a capital da China?',
+        options: ['Xangai', 'Hong Kong', 'Pequim', 'Guangzhou'],
+        correctOptionIndex: 2,
       ),
     ],
   ),

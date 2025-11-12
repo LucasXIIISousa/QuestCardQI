@@ -1,15 +1,21 @@
+import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/card_model.dart';
 import '../models/monster_model.dart';
 import '../data/card_database.dart';
+import '../data/monster_database.dart';
 
 enum GameState { playing, won, lost }
 
-class GameController with ChangeNotifier {
+// Instância global de Random para garantir aleatoriedade real
+final _random = Random();
+
+class GameController with ChangeNotifier, WidgetsBindingObserver {
   final SharedPreferences _prefs;
   static const String _collectionKey = 'ownedCardIds';
+  static const String _gameStateKey = 'savedGameState';
 
   GameState gameState = GameState.playing;
 
@@ -65,6 +71,24 @@ class GameController with ChangeNotifier {
   GameController({required SharedPreferences sharedPreferences})
     : _prefs = sharedPreferences {
     _loadCollection();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // App foi minimizado ou está sendo pausado
+      _saveGameState();
+    } else if (state == AppLifecycleState.resumed) {
+      // App foi retomado
+      _loadGameState();
+    }
   }
 
   void _loadCollection() {
@@ -86,6 +110,100 @@ class GameController with ChangeNotifier {
     print("Coleção salva com ${_ownedCardIds.length} cartas.");
   }
 
+  // Salva o estado atual da batalha
+  Future<void> _saveGameState() async {
+    if (gameState != GameState.playing || currentMonster == null) {
+      // Não há batalha ativa, limpa o estado salvo
+      await _prefs.remove(_gameStateKey);
+      return;
+    }
+
+    final stateData = {
+      'monsterId': currentMonster!.id,
+      'playerHP': playerHP,
+      'playerMaxHP': playerMaxHP,
+      'playerShield': playerShield,
+      'monsterHP': monsterHP,
+      'monsterMaxHP': monsterMaxHP,
+      'isPlayerTurn': isPlayerTurn,
+      'handCardIds': hand.map((card) => card.id).toList(),
+      'deckCardIds': playerDeck.map((card) => card.id).toList(),
+      'discardCardIds': discardPile.map((card) => card.id).toList(),
+    };
+
+    await _prefs.setString(_gameStateKey, jsonEncode(stateData));
+    print("Estado do jogo salvo!");
+  }
+
+  // Carrega o estado da batalha
+  void _loadGameState() {
+    final stateJson = _prefs.getString(_gameStateKey);
+    if (stateJson == null || stateJson.isEmpty) {
+      return;
+    }
+
+    try {
+      final stateData = jsonDecode(stateJson) as Map<String, dynamic>;
+      
+      // Restaura o monstro
+      final monsterId = stateData['monsterId'] as String?;
+      if (monsterId != null && allMonsters.containsKey(monsterId)) {
+        currentMonster = allMonsters[monsterId];
+      } else {
+        // Monstro não encontrado, limpa o estado
+        _prefs.remove(_gameStateKey);
+        return;
+      }
+
+      // Restaura stats do jogador
+      playerHP = stateData['playerHP'] as int? ?? 100;
+      playerMaxHP = stateData['playerMaxHP'] as int? ?? 100;
+      playerShield = stateData['playerShield'] as int? ?? 0;
+      
+      // Restaura stats do monstro
+      monsterHP = stateData['monsterHP'] as int? ?? currentMonster!.maxHP;
+      monsterMaxHP = stateData['monsterMaxHP'] as int? ?? currentMonster!.maxHP;
+      
+      isPlayerTurn = stateData['isPlayerTurn'] as bool? ?? true;
+      
+      // Restaura cartas
+      hand.clear();
+      playerDeck.clear();
+      discardPile.clear();
+
+      final handIds = (stateData['handCardIds'] as List?)?.cast<String>() ?? [];
+      final deckIds = (stateData['deckCardIds'] as List?)?.cast<String>() ?? [];
+      final discardIds = (stateData['discardCardIds'] as List?)?.cast<String>() ?? [];
+
+      for (String cardId in handIds) {
+        if (allCards.containsKey(cardId)) {
+          hand.add(allCards[cardId]!);
+        }
+      }
+
+      for (String cardId in deckIds) {
+        if (allCards.containsKey(cardId)) {
+          playerDeck.add(allCards[cardId]!);
+        }
+      }
+
+      for (String cardId in discardIds) {
+        if (allCards.containsKey(cardId)) {
+          discardPile.add(allCards[cardId]!);
+        }
+      }
+
+      gameState = GameState.playing;
+      gameMessage = "Batalha restaurada!";
+      
+      print("Estado do jogo carregado com sucesso!");
+      notifyListeners();
+    } catch (e) {
+      print("Erro ao carregar estado do jogo: $e");
+      _prefs.remove(_gameStateKey);
+    }
+  }
+
   void startGame(MonsterModel monster) {
     gameState = GameState.playing;
     gameMessage = "Batalha iniciada!";
@@ -105,7 +223,7 @@ class GameController with ChangeNotifier {
         playerDeck.add(allCards[cardId]!);
       }
     }
-    playerDeck.shuffle();
+    playerDeck.shuffle(_random);
 
     discardPile.clear();
     hand.clear();
@@ -118,7 +236,7 @@ class GameController with ChangeNotifier {
       if (playerDeck.isEmpty) {
         if (discardPile.isEmpty) return;
         playerDeck.addAll(discardPile);
-        playerDeck.shuffle();
+        playerDeck.shuffle(_random);
         discardPile.clear();
       }
       if (playerDeck.isNotEmpty) {
@@ -260,9 +378,9 @@ class GameController with ChangeNotifier {
   void _monsterTurn() {
     if (gameState != GameState.playing || currentMonster == null) return;
 
-    final random = Random();
+    // Usa a instância global de Random
     final attack = currentMonster!
-        .attackPattern[random.nextInt(currentMonster!.attackPattern.length)];
+        .attackPattern[_random.nextInt(currentMonster!.attackPattern.length)];
 
     int damage = 0;
     String monsterActionMessage =
@@ -311,7 +429,7 @@ class GameController with ChangeNotifier {
     if (currentMonster == null) return;
 
     List<String> pool = List.from(currentMonster!.rewardCardPool);
-    pool.shuffle();
+    pool.shuffle(_random);
 
     int count = 0;
     for (String cardId in pool) {
@@ -355,6 +473,10 @@ class GameController with ChangeNotifier {
     isPlayerTurn = true;
     gameMessage = null;
     gameState = GameState.playing;
+    
+    // Limpa o estado salvo da batalha
+    _prefs.remove(_gameStateKey);
+    
     notifyListeners();
   }
 
